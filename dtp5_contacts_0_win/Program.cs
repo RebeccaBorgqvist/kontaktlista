@@ -17,6 +17,9 @@ namespace dtp5_contacts_0
             string lastFileName = "address.lis";
             string[] commandLine;
 
+            Console.WriteLine("Welcome!\n");
+            helpAndWelcome();
+
             do
             {
                 Console.Write("> ");
@@ -46,14 +49,7 @@ namespace dtp5_contacts_0
                 {
                     if (commandLine.Length < 2)
                     {
-                        using (StreamWriter outfile = new StreamWriter(lastFileName))
-                        {
-                            foreach (Person p in contactList)
-                            {
-                                if (p != null)
-                                    outfile.WriteLine($"{p.firstname};{p.lastname};{p.phone};{p.address};{p.birthdate}");
-                            }
-                        }
+                        writeContactlistFile(lastFileName);
                     }
 
                     else
@@ -80,7 +76,7 @@ namespace dtp5_contacts_0
 
                 else if (commandLine[0] == "help")
                 {
-                    help();
+                    helpAndWelcome();
                 }
 
                 else
@@ -89,6 +85,18 @@ namespace dtp5_contacts_0
                 }
 
             } while (commandLine[0] != "quit");
+        }
+
+        private static void writeContactlistFile(string lastFileName)
+        {
+            using (StreamWriter outfile = new StreamWriter(lastFileName))
+            {
+                foreach (Person p in contactList)
+                {
+                    if (p != null)
+                        outfile.WriteLine($"{p.firstname};{p.lastname};{p.phone};{p.address};{p.birthdate}");
+                }
+            }
         }
 
         private static void readContactlistFile(string lastFileName)
@@ -125,7 +133,7 @@ namespace dtp5_contacts_0
             return Console.ReadLine();
         }
 
-        private static void help()
+        private static void helpAndWelcome()
         {
             Console.WriteLine("Avaliable commands: ");
             Console.WriteLine("  delete                         - emtpy the contact list");
