@@ -6,6 +6,39 @@ namespace dtp5_contacts_0
     class Person
     {
         public string firstname, lastname, phone, address, birthdate;
+
+        private static string input(string userInput)
+        {
+            Console.Write(userInput);
+            return Console.ReadLine();
+        }
+
+        public Person(bool ask = false)
+        {
+            if (ask)
+            {
+                firstname = input("Firstname: ");
+                lastname = input("Lastname: ");
+                phone = input("Phonenumber: ");
+                address = input("Address: ");
+                birthdate = input("Birthdate: ");
+            }
+        }
+
+        public Person(string[] create)
+        {
+            firstname = create[0];
+
+            lastname = create[1];
+
+            string[] phones = create[2].Split(';');
+            phone = phones[0];
+
+            string[] addresses = create[3].Split(';');
+            address = addresses[0];
+
+            birthdate = create[4];
+        }
     }
 
     class Program
@@ -14,7 +47,7 @@ namespace dtp5_contacts_0
 
         public static void Main(string[] args)
         {
-            string lastFileName = "address.lis";
+            string lastFileName = "address.txt";
             string[] commandLine;
 
             Console.WriteLine("Welcome!\n");
@@ -30,11 +63,11 @@ namespace dtp5_contacts_0
                     Console.WriteLine("Goodbye");
                 }
 
-                else if (commandLine[0] == "load") // kopior här TBD
+                else if (commandLine[0] == "load")
                 {
                     if (commandLine.Length < 2)
                     {
-                        lastFileName = "address.lis";
+                        lastFileName = "address.txt";
                         readContactlistFile(lastFileName);
                     }
 
@@ -54,8 +87,8 @@ namespace dtp5_contacts_0
 
                     else
                     {
-                        // NYI!
-                        Console.WriteLine("Not yet implemented: save /file/");
+                        lastFileName = commandLine[1];
+                        writeContactlistFile(lastFileName);
                     }
                 }
 
@@ -63,9 +96,8 @@ namespace dtp5_contacts_0
                 {
                     if (commandLine.Length < 2)
                     {
-                        string firstname = input("Firstname: ");
-                        string lastname = input("Lastname: ");                        
-                        string phone = input("Phonenumber: ");
+                        Person pers = new Person(true);
+                        personToContactlist(pers);
                     }
                     else
                     {
@@ -87,14 +119,26 @@ namespace dtp5_contacts_0
             } while (commandLine[0] != "quit");
         }
 
+        private static void personToContactlist(Person pers)
+        {
+            for (int i = 0; i < contactList.Length; i++)
+            {
+                if (contactList[i] == null)
+                {
+                    contactList[i] = pers;
+                    break;
+                }
+            }
+        }
+
         private static void writeContactlistFile(string lastFileName)
         {
             using (StreamWriter outfile = new StreamWriter(lastFileName))
             {
-                foreach (Person p in contactList)
+                foreach (Person pers in contactList)
                 {
-                    if (p != null)
-                        outfile.WriteLine($"{p.firstname};{p.lastname};{p.phone};{p.address};{p.birthdate}");
+                    if (pers != null)
+                        outfile.WriteLine($"{pers.firstname}|{pers.lastname}|{pers.phone}|{pers.address}|{pers.birthdate}");
                 }
             }
         }
@@ -107,31 +151,16 @@ namespace dtp5_contacts_0
                 while ((line = infile.ReadLine()) != null)
                 {
                     Console.WriteLine(line);
-                    string[] attrs = line.Split('|');
-                    Person p = new Person();
-                    p.firstname = attrs[0];
-                    p.lastname = attrs[1];
-                    string[] phones = attrs[2].Split(';');
-                    p.phone = phones[0];
-                    string[] addresses = attrs[3].Split(';');
-                    p.address = addresses[0];
-                    for (int ix = 0; ix < contactList.Length; ix++)
-                    {
-                        if (contactList[ix] == null)
-                        {
-                            contactList[ix] = p;
-                            break;
-                        }
-                    }
+                    string[] create = line.Split('|');
+
+                    Person pers = new Person(create);
+
+                    personToContactlist(pers);
                 }
             }
         }
 
-        private static string input(string userInput)
-        {
-            Console.Write(userInput);
-            return Console.ReadLine();
-        }
+
 
         private static void helpAndWelcome()
         {
